@@ -1,12 +1,20 @@
 #/bin/bash
-
 # Exit on any error
 set -e
 
 
 project=test_wgs
+if [[ $(hostname) == stratus ]]
+then
+    source /apps/anaconda3-individual-edition/install/etc/profile.d/conda.sh
+elif [[ $(hostname) == pluto ]]
+then
+    source /apps/anaconda3-individual-edition/2020.11/etc/profile.d/conda.sh
+else
+    echo "Unknown host $(hostname)"
+    exit
+fi
 
-source /apps/anaconda3-individual-edition/install/etc/profile.d/conda.sh
 conda activate ~chenwjb/miniconda3/envs/catplat
 
 # Assuming run from catplat_tutorial/test
@@ -22,11 +30,10 @@ pyatoms config vasp-project --yaml-file $project.yaml
 mkdir -p wgs_project/calc
 mkdir -p wgs_project/db
 
-catplat config project --name $project --calc-path wgs_project/calc --db-path wgs_project/db
 catplat config project --name $project --calc-path wgs_project/calc --db-path mysql://wgsuser:wgspassword@127.0.0.1:3306/wgs
+catplat config project --name $project --calc-path wgs_project/calc --db-path wgs_project/db
 catplat config show
 
-: '
 
 catplat calculate --project $project --test
 catplat calculate -p $project --test
@@ -46,7 +53,6 @@ catplat calculate -p $project --bulk-atoms ../examples/Cu-bulk.POSCAR --test
 
 
 catplat calculate -p $project --bulk-atoms Cu-bulk --test
-'
 
 catplat calculate -p $project --chemsys Cu --e-above-hull "<0.01" --test
 catplat calculate -p $project --chemsys Cu --e-above-hull "0" --test
@@ -69,6 +75,7 @@ catplat calculate -p $project --bulk-atoms Cu-bulk --miller-index 1 0 0 --unitce
 
 # example to continue slab workflow from Material Project bulk structure
 catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 1 0 0 --unitcell-size 4 4 --test
+
 # Due to uneven z-positions of the 211 slab atoms, we would need be required to specify
 # 3 times the number of --num-layers and --num-fixed-layers.
 catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 2 1 1 --unitcell-size 1 3 \
@@ -94,8 +101,8 @@ catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 1 1
 catplat calculate -p $project --chemsys Cu-Pd --bulk-formula CuPd --e-above-hull "0" --miller-index 1 0 0 \
 --unitcell-size 4 4 --termination Cu --test
 
-catplat adsorbate --adsorbate-atoms CO
-catplat surface --slab-atoms valid_slab
+catplat adsorbate --name CO
+catplat surface --file valid_slab
 
 # top site
 catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 1 0 0 --unitcell-size 4 4 \
@@ -134,7 +141,7 @@ catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 2 1
 catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 2 1 1 --unitcell-size 1 3 --num-layers 12 \
 --num-fixed-layers 6 --adsorbate-atoms O2  --bonds "[0,1]" --avg-coord-num "['<=8','<=8']" --test
 
-catplat retrieve --p $project --miller-index 1 0 0 --chemsys Cu
+catplat retrieve -p $project --miller-index 1 0 0 --chemsys Cu
 
 # get bulk structure from materials project
 catplat get-bulk --chemsys Cu --e-above-hull "<0.01" --spacegroup 225
