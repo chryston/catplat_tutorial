@@ -31,9 +31,8 @@ mkdir -p wgs_project/calc
 mkdir -p wgs_project/db
 
 catplat config project --name $project --calc-path wgs_project/calc --db-path mysql://wgsuser:wgspassword@127.0.0.1:3306/wgs
-catplat config project --name $project --calc-path wgs_project/calc --db-path wgs_project/db
+catplat config project --name $project --calc-path wgs_project/calc --db-path wgs_project/db/project.db
 catplat config show
-
 
 catplat calculate --project $project --test
 catplat calculate -p $project --test
@@ -102,7 +101,7 @@ catplat calculate -p $project --chemsys Cu-Pd --bulk-formula CuPd --e-above-hull
 --unitcell-size 4 4 --termination Cu --test
 
 catplat adsorbate --name CO
-catplat surface --file valid_slab
+catplat surface --name valid_slab
 
 # top site
 catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 1 0 0 --unitcell-size 4 4 \
@@ -139,7 +138,7 @@ catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 2 1
 
 # using comparator strings for bidenate avg coord num
 catplat calculate -p $project --chemsys Cu --e-above-hull "0" --miller-index 2 1 1 --unitcell-size 1 3 --num-layers 12 \
---num-fixed-layers 6 --adsorbate-atoms O2  --bonds "[0,1]" --avg-coord-num "['<=8','<=8']" --test
+ --num-fixed-layers 6 --adsorbate-atoms O2  --bonds "[0,1]" --avg-coord-num "['<=8','<=8']" --test
 
 catplat retrieve -p $project --miller-index 1 0 0 --chemsys Cu
 
@@ -147,13 +146,13 @@ catplat retrieve -p $project --miller-index 1 0 0 --chemsys Cu
 catplat get-bulk --chemsys Cu --e-above-hull "<0.01" --spacegroup 225
 
 # create 211 slab structure from bulk structure
-catplat slab-builder --file POSCAR_BULK_Cu_0 --miller-index 1 0 0 --unitcell-size 4 4
+catplat slab-builder --name POSCAR_BULK_Cu_0 --miller-index 1 0 0 --unitcell-size 4 4
 
 # writes the complex structure of H top site binding
-catplat adsorb -f POSCAR_Cu_100_4x4 --adsorbate H --adsorbate H connectivity 1 --rotation 0
+catplat adsorb --slab Pt111 --adsorbate H --adsorbate H --connectivity "[1]" --rotation 0
 
 # creates Cu 100 4x4 slab using catplat slab-builder
-catplat slab-builder -f POSCAR_Cu_bulk --miller-index 1 0 0 --unitcell-size 4 4
+catplat slab-builder --name Cu-bulk --miller-index 1 0 0 --unitcell-size 4 4
 
 
 echo "Test successfully completed"
