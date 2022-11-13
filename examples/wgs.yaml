@@ -1,0 +1,142 @@
+#############################################################################################
+# Below are the "main" computational settings, it is compulsory to have the INCAR, KPOINTS, 
+# and POTCAR_FUNCTIONAL sections.
+#
+# The format of these sections follows:
+# https://github.com/materialsproject/pymatgen/blob/master/pymatgen/io/vasp/MPRelaxSet.yaml
+#############################################################################################
+
+# KEYWORD: INCAR   [REQUIRED]
+# ===========================
+# The main INCAR settings used for all jobs.
+
+INCAR:
+  ALGO: Fast
+  EDIFF: 1E-6
+  ENCUT: 520
+  ISMEAR: 2
+  SIGMA: 0.05
+  NELM: 100
+  NSW: 500
+  PREC: N
+  LASPH: true
+  LREAL: Auto
+
+  LWAVE: False
+  LCHARG: False
+
+  IBRION: 3
+  IOPT: 1
+  ISIF: 3
+
+  ISPIN: 2
+  MAGMOM:
+    Ni: 5
+    Fe: 5
+    Co: 5
+
+NO_SPIN_POL_IF_NO_MAG_ELEMENTS: True
+
+# KEYWORD: KPOINTS    [REQUIRED]
+# =============================
+# The main kpoints settings used for all jobs. 
+# Examples:
+#   o    monkhorst_automatic: 4,4,1
+#   o    gamma_automatic: 1,1,1
+#   o    reciprocal_density: 64 (KPOINTS by density)
+#   o    autogr_density: 100 (special KPOINTS by density)
+#   o    for special KPOINTS
+#       STRING: |     # '|' indicates multiline string
+#                 Dynamic K-point generation: irreducible/reducible:            4/    12
+#                 4
+#                 Reciprocal
+#                 0.0 0.0 0.0 1 None
+#                 0.333333333333 0.166666666667 0.0 6 None
+#                 0.666666666667 0.333333333333 0.0 2 None
+#                 0.0 0.5 0.0 3 None
+  
+KPOINTS:
+  gamma_automatic: 4,4,1
+
+
+# KEYWORD: POTCAR     [REQUIRED]
+# =============================
+# The main POTCAR settings used for all jobs.
+# Examples:
+#  o   PBE
+#  o   PBE_52
+#  o   PBE_54
+POTCAR_FUNCTIONAL: PBE_52
+
+
+############################################################################################
+# The sections below are readable by pyatoms only.
+############################################################################################
+
+# KEYWORD: PREOPTIMIZE   [OPTIONAL]
+# ================================
+# Pyatoms can optimize geometries in stages e.g. first a loose optimization using rough settings,
+# and then an accurate optimization using more accurate settings.
+
+# The stages are specified as 0, 1, etc.
+
+# For each stage, the INCAR, KPOINTS, and POTCAR_FUNCTIONAL keywords can be set. The format of these keywords
+# are the same as the main settings above.
+
+# The keywords under INCAR for each stage will overwrite the main INCAR settings above. 
+# Otherwise, the keyword is not specified, the keywords from the main INCAR settings above will be used.
+
+PREOPTIMIZE:
+  0:
+    INCAR:
+            PREC: N
+            ENCUT: 400
+    KPOINTS:
+            reciprocal_density: 32
+
+# KEYWORD: CELLOPT     [OPTIONAL]
+# ================================
+# Cell optimization usually requires slightly different settings as compared to geometry optimization e.g. LREAL=False, and denser kpoints.
+# Similar to the PREOPTIMIZE section, you can set the INCAR, KPOINTS, and POTCAR_FUNCTIONAL settings under CELLOPT.
+# See PREOPTIMIZE section for more details.
+
+CELLOPT:
+    INCAR:
+            IOPT: 0
+            IBRION: 2
+            POTIM: 0.2
+            LREAL: False
+    KPOINTS:
+            gamma_automatic: 11,11,1
+
+# KEYWORD: NEB           [OPTIONAL]
+# =================================
+# NEB optimization usually requires slightly different settings as compared to geometry optimization e.g. LCLIMB
+# Similar to the CELLOPT section, you can set the INCAR, KPOINTS, and POTCAR_FUNCTIONAL settings under NEB.
+# See CELLOPT section for more details.
+
+NEB:
+    INCAR:
+            IOPT: 1
+            MAXMOVE: 0.05
+            LCLIMB: True
+
+# KEYWORKD: NEB_PREOPTIMIZE      [OPTIONAL]
+# =========================================
+# Similar to geometry optimizations, NEB optimization can be divided into several stages of increasing accuracy.
+# The format of this section is the same as that of PREOPTIMIZE.
+
+NEB_PREOPTIMIZE:
+  0:
+    INCAR:
+            PREC: N
+            ENCUT: 400
+            LCLIMB: False
+    KPOINTS:
+            reciprocal_density: 32
+  1:
+    INCAR:
+            PREC: N
+            ENCUT: 520
+            LCLIMB: True
+        
