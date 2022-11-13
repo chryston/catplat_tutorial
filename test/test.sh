@@ -7,7 +7,7 @@ project=test_wgs
 if [[ $(hostname) == stratus ]]
 then
     source /apps/anaconda3-individual-edition/install/etc/profile.d/conda.sh
-elif [[ $(hostname) == pluto ]]
+elif [[ $(hostname) == hpc-login* ]]
 then
     source /apps/anaconda3-individual-edition/2020.11/etc/profile.d/conda.sh
 else
