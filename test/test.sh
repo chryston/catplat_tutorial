@@ -1,7 +1,7 @@
 #/bin/bash
 # Exit on any error
 set -e
-
+unset DISPLAY
 
 project=test_wgs
 if [[ $(hostname) == stratus ]]
